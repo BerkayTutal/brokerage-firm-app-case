@@ -25,14 +25,14 @@ public class OrderEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customerId", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "customer_id", referencedColumnName = "id", nullable = false)
     private CustomerEntity customer;
 
-    @Column(name = "assetName", nullable = false)
+    @Column(name = "asset_name", nullable = false)
     private String assetName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "orderSide", nullable = false)
+    @Column(name = "order_side", nullable = false)
     private Side orderSide;
 
     @Column(name = "size", nullable = false)
@@ -46,10 +46,10 @@ public class OrderEntity {
     private Status status;
 
     @CreatedDate
-    @Column(name = "createDate")
+    @Column(name = "create_date")
     private LocalDateTime createDate;
 
     @UpdateTimestamp
-    @Column(name = "updateDate")
+    @Column(name = "update_date")
     private LocalDateTime updateDate;
 }

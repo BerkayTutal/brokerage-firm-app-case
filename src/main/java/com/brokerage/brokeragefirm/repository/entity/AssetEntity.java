@@ -20,17 +20,17 @@ public class AssetEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "customerId", referencedColumnName = "id")
+    @JoinColumn(name = "customer_id", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private CustomerEntity customer;
 
-    @Column(name = "assetName")
+    @Column(name = "asset_name")
     private String assetName;
 
     @Column(name = "size")
     private BigDecimal size;
 
-    @Column(name = "usableSize")
+    @Column(name = "usable_size")
     private BigDecimal usableSize;
 
 }
