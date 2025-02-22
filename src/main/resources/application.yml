@@ -1,3 +1,17 @@
 spring:
   application:
     name: Brokerage Firm App
+  datasource:
+    url: jdbc:mysql://localhost:3306/brokerage?useSSL=true&createDatabaseIfNotExist=true
+    username: root
+    password: root
+  jpa:
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+  sql:
+    init:
+      mode: always
