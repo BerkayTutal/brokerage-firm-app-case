@@ -8,13 +8,13 @@ import com.brokerage.brokeragefirm.service.model.Customer;
 public class AssetMapper {
 
     public static Asset toModel(AssetEntity entity) {
-        Asset model = new Asset();
-        model.setId(entity.getId());
-        model.setCustomerId(entity.getCustomer().getId()); // Ensure Customer is loaded
-        model.setAssetName(entity.getAssetName());
-        model.setSize(entity.getSize());
-        model.setUsableSize(entity.getUsableSize());
-        return model;
+        return Asset.builder()
+                .id(entity.getId())
+                .customerId(entity.getCustomer().getId()) // Ensure Customer is loaded
+                .assetName(entity.getAssetName())
+                .size(entity.getSize())
+                .usableSize(entity.getUsableSize())
+                .build();
     }
 
     public static AssetEntity toEntity(Asset model, CustomerEntity customerEntity) {
@@ -26,6 +26,7 @@ public class AssetMapper {
         entity.setUsableSize(model.getUsableSize());
         return entity;
     }
+
     public static AssetEntity toEntity(Asset model, Customer customer) {
         return toEntity(model, CustomerMapper.toEntity(customer));
     }

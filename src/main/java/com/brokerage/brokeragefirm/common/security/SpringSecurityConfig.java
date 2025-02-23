@@ -25,6 +25,7 @@ public class SpringSecurityConfig {
 
     private final JwtFilter jwtFilter;
 
+    //TODO add custom error response
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -32,7 +33,8 @@ public class SpringSecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/login", "/register").permitAll()
-                                .requestMatchers("/customers/").hasRole("ADMIN")
+                                .requestMatchers("/customers").hasRole("ADMIN")
+                                .requestMatchers("/assets").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

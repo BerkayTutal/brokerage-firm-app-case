@@ -6,6 +6,7 @@ import com.brokerage.brokeragefirm.common.exception.PermissionException;
 import com.brokerage.brokeragefirm.common.security.CustomUserDetails;
 import com.brokerage.brokeragefirm.service.AssetService;
 import com.brokerage.brokeragefirm.service.CustomerService;
+import com.brokerage.brokeragefirm.service.model.Asset;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -33,6 +34,19 @@ public class ValidateOwnershipComponent {
         return joinPoint.proceed();
     }
 
+    @Around("@annotation(validateOwnershipAsset)")
+    public Object validate(ProceedingJoinPoint joinPoint, ValidateOwnershipAsset validateOwnershipAsset) throws Throwable {
+        final Object[] args = joinPoint.getArgs();
+
+        if (args != null && args[0] != null) {
+            final var customUserDetails = ((CustomUserDetails) args[0]);
+            final var assetId = ((Long) args[1]);
+
+            checkOwnershipAsset(customUserDetails, assetId);
+        }
+        return joinPoint.proceed();
+    }
+
     private void checkCustomerExists(Long userId) {
         if (!customerService.existsById(userId)) {
             throw new NotFoundException(Error.CUSTOMER_NOT_FOUND_ID, userId);
@@ -43,6 +57,13 @@ public class ValidateOwnershipComponent {
         checkCustomerExists(customerId);
         if (!loggedUser.isAdmin() && (customerId != null && !loggedUser.getCustomer().getId().equals(customerId))) {
             throw new PermissionException(Error.NO_PERMISSION_CUSTOMER);
+        }
+    }
+
+    private void checkOwnershipAsset(CustomUserDetails loggedUser, Long assetId) {
+        Asset asset = assetService.getAsset(assetId);
+        if (!loggedUser.isAdmin() && (assetId != null && !loggedUser.getCustomer().getId().equals(asset.getCustomerId()))) {
+            throw new PermissionException(Error.NO_PERMISSION_ASSET);
         }
     }
 }

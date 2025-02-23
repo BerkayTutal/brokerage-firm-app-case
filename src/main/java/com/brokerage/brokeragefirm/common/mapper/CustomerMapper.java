@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 public class CustomerMapper {
 
-    // Convert CustomerEntity to Customer
     public static Customer toModel(CustomerEntity entity) {
         if (entity == null) {
             return null;
@@ -24,7 +23,6 @@ public class CustomerMapper {
                 .email(entity.getEmail())
                 .password(entity.getPassword())
                 .roles(getRoleSet(entity.getRoles()))
-                .assets(getAssetList(entity.getAssets()))
                 .build();
     }
 

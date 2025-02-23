@@ -27,28 +27,6 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     @Transactional
-    public void updateUsableSizeForBuyOrder(Long customerId, BigDecimal requiredTry) {
-        final String assetName = "TRY";
-        AssetEntity tryAssetEntity = assetRepository
-                .findByCustomerIdAndAssetName(customerId, assetName)
-                .orElseThrow(() -> new NotFoundException(Error.ASSET_NOT_FOUND_ASSET_CUSTOMER, assetName, customerId));
-
-        Asset tryAsset = AssetMapper.toModel(tryAssetEntity);
-
-        if (tryAsset.getUsableSize().compareTo(requiredTry) < 0) {
-            throw new PermissionException(Error.INSUFFICIENT_FUNDS, assetName, customerId);
-        }
-
-        tryAsset.setUsableSize(tryAsset.getUsableSize().subtract(requiredTry));
-
-        // Reuse existing CustomerEntity to avoid extra DB call
-        CustomerEntity customer = tryAssetEntity.getCustomer();
-        AssetEntity updatedEntity = AssetMapper.toEntity(tryAsset, customer);
-        assetRepository.save(updatedEntity);
-    }
-
-    @Override
-    @Transactional
     public Asset createAsset(Asset asset) {
 
         //Check customer exists
@@ -64,6 +42,23 @@ public class AssetServiceImpl implements AssetService {
         AssetEntity savedEntity = assetRepository.save(AssetMapper.toEntity(asset, customer));
         return AssetMapper.toModel(savedEntity);
     }
+
+    @Transactional
+    @Override
+    public Asset updateAsset(Asset asset) {
+
+        //check if asset exists by customer
+        AssetEntity existingAsset = assetRepository.findByCustomerIdAndAssetName(asset.getCustomerId(), asset.getAssetName())
+                .orElseThrow(() -> new NotFoundException(Error.ASSET_NOT_FOUND_ASSET_CUSTOMER, asset.getAssetName(), asset.getCustomerId()));
+
+        AssetEntity entity = AssetMapper.toEntity(asset, existingAsset.getCustomer());
+        entity.setId(existingAsset.getId());
+
+        //Save asset
+        AssetEntity savedEntity = assetRepository.save(entity);
+        return AssetMapper.toModel(savedEntity);
+    }
+
 
     @Override
     public List<Asset> getAllAssets() {
