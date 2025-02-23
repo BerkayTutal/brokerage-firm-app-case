@@ -27,7 +27,14 @@ public class AssetMapper {
         return entity;
     }
 
-    public static AssetEntity toEntity(Asset model, Customer customer) {
-        return toEntity(model, CustomerMapper.toEntity(customer));
+    public static AssetEntity toEntity(Asset model) {
+        AssetEntity entity = new AssetEntity();
+        entity.setId(model.getId());
+        entity.setCustomer(CustomerEntity.builder().id(model.getCustomerId()).build());
+        entity.setAssetName(model.getAssetName());
+        entity.setSize(model.getSize());
+        entity.setUsableSize(model.getUsableSize());
+        return entity;
     }
+
 }

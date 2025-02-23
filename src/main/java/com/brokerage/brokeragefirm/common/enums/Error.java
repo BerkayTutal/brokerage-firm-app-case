@@ -13,7 +13,7 @@ public enum Error {
     NO_PERMISSION_ASSET("Logged user has no permission to access this asset!"),
     NO_PERMISSION_ORDER("Logged user has no permission to access this order!"),
     EMAIL_ALREADY_EXISTS("Email already exists!"),
-    ASSET_ALREADY_EXISTS("%s asset with id %s already exists"),
+    ASSET_ALREADY_EXISTS("User with id %s already has %s asset!"),
     ASSET_NOT_FOUND_ID("Asset not found with id: %s"),
     ASSET_NOT_FOUND_ASSET_CUSTOMER("%s asset not found for customerId %s"),
     INSUFFICIENT_FUNDS("Insufficient %s for customerId %s"),

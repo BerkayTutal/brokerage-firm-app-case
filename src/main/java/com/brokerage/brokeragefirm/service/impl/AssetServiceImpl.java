@@ -30,17 +30,17 @@ public class AssetServiceImpl implements AssetService {
     public Asset createAsset(Asset asset) {
 
         //Check customer exists
-        CustomerEntity customer = customerRepository.findById(asset.getCustomerId())
-                .orElseThrow(() -> new NotFoundException(Error.CUSTOMER_NOT_FOUND_ID, asset.getCustomerId()));
+        if (!customerRepository.existsById(asset.getCustomerId())) {
+            throw new NotFoundException(Error.CUSTOMER_NOT_FOUND_ID, asset.getCustomerId());
+        }
 
         //check if asset exists by customer
-        assetRepository.findByCustomerIdAndAssetName(customer.getId(), asset.getAssetName()).ifPresent(existingAsset -> {
-            throw new DuplicateEntryException(Error.ASSET_ALREADY_EXISTS, asset.getAssetName(), existingAsset.getId());
-        });
+        if (assetRepository.existsByCustomerIdAndAssetName(asset.getCustomerId(), asset.getAssetName())) {
+            throw new DuplicateEntryException(Error.ASSET_ALREADY_EXISTS, asset.getCustomerId(), asset.getAssetName());
+        }
 
         //Save asset
-        AssetEntity savedEntity = assetRepository.save(AssetMapper.toEntity(asset, customer));
-        return AssetMapper.toModel(savedEntity);
+        return AssetMapper.toModel(assetRepository.save(AssetMapper.toEntity(asset)));
     }
 
     @Transactional
