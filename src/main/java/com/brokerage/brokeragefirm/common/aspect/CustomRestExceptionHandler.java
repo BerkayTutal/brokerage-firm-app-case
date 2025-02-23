@@ -1,5 +1,10 @@
 package com.brokerage.brokeragefirm.common.aspect;
 
+import com.brokerage.brokeragefirm.common.exception.CustomException;
+import com.brokerage.brokeragefirm.common.exception.DuplicateEntryException;
+import com.brokerage.brokeragefirm.common.exception.NotFoundException;
+import com.brokerage.brokeragefirm.common.exception.PermissionException;
+import com.brokerage.brokeragefirm.common.mapper.CustomExceptionResponseMapper;
 import com.brokerage.brokeragefirm.rest.dto.CustomExceptionResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,9 +14,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class CustomRestExceptionHandler {
 
-    @ExceptionHandler(RuntimeException.class)
+    @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public CustomExceptionResponse handleNotFoundException(RuntimeException ce) {
-        return CustomExceptionResponse.from(ce);
+    public CustomExceptionResponse handleNotFoundException(CustomException ce) {
+        return CustomExceptionResponseMapper.toResponse(ce);
+    }
+
+    @ExceptionHandler(PermissionException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public CustomExceptionResponse handlePermissionException(CustomException ce) {
+        return CustomExceptionResponseMapper.toResponse(ce);
+    }
+
+    @ExceptionHandler(DuplicateEntryException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public CustomExceptionResponse handleDuplicateEntryException(CustomException ce) {
+        return CustomExceptionResponseMapper.toResponse(ce);
     }
 }

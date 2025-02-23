@@ -1,9 +1,9 @@
 package com.brokerage.brokeragefirm.service.impl;
 
-import com.brokerage.brokeragefirm.common.exception.AssetAlreadyExistsException;
-import com.brokerage.brokeragefirm.common.exception.AssetNotFoundException;
-import com.brokerage.brokeragefirm.common.exception.CustomerNotFoundException;
-import com.brokerage.brokeragefirm.common.exception.InsufficientFundsException;
+import com.brokerage.brokeragefirm.common.exception.DuplicateEntryException;
+import com.brokerage.brokeragefirm.common.enums.Error;
+import com.brokerage.brokeragefirm.common.exception.NotFoundException;
+import com.brokerage.brokeragefirm.common.exception.PermissionException;
 import com.brokerage.brokeragefirm.common.mapper.AssetMapper;
 import com.brokerage.brokeragefirm.repository.AssetRepository;
 import com.brokerage.brokeragefirm.repository.CustomerRepository;
@@ -31,12 +31,12 @@ public class AssetServiceImpl implements AssetService {
         final String assetName = "TRY";
         AssetEntity tryAssetEntity = assetRepository
                 .findByCustomerIdAndAssetName(customerId, assetName)
-                .orElseThrow(() -> new InsufficientFundsException(String.format("%s asset not found for userId %s", assetName, customerId)));
+                .orElseThrow(() -> new NotFoundException(Error.ASSET_NOT_FOUND_ASSET_CUSTOMER, assetName, customerId));
 
         Asset tryAsset = AssetMapper.toModel(tryAssetEntity);
 
         if (tryAsset.getUsableSize().compareTo(requiredTry) < 0) {
-            throw new InsufficientFundsException(String.format("Insufficient %s for userId %s", assetName, customerId));
+            throw new PermissionException(Error.INSUFFICIENT_FUNDS, assetName, customerId);
         }
 
         tryAsset.setUsableSize(tryAsset.getUsableSize().subtract(requiredTry));
@@ -50,13 +50,17 @@ public class AssetServiceImpl implements AssetService {
     @Override
     @Transactional
     public Asset createAsset(Asset asset) {
-        CustomerEntity customer = customerRepository.findById(asset.getCustomerId())
-                .orElseThrow(() -> new CustomerNotFoundException(asset.getCustomerId()));
 
+        //Check customer exists
+        CustomerEntity customer = customerRepository.findById(asset.getCustomerId())
+                .orElseThrow(() -> new NotFoundException(Error.CUSTOMER_NOT_FOUND_ID, asset.getCustomerId()));
+
+        //check if asset exists by customer
         assetRepository.findByCustomerIdAndAssetName(customer.getId(), asset.getAssetName()).ifPresent(existingAsset -> {
-            throw new AssetAlreadyExistsException(asset.getAssetName(), existingAsset.getId());
+            throw new DuplicateEntryException(Error.ASSET_ALREADY_EXISTS, asset.getAssetName(), existingAsset.getId());
         });
 
+        //Save asset
         AssetEntity savedEntity = assetRepository.save(AssetMapper.toEntity(asset, customer));
         return AssetMapper.toModel(savedEntity);
     }
@@ -71,13 +75,13 @@ public class AssetServiceImpl implements AssetService {
         if (customerRepository.existsById(customerId)) {
             return assetRepository.findAllByCustomerId(customerId).stream().map(AssetMapper::toModel).toList();
         } else {
-            throw new CustomerNotFoundException(customerId);
+            throw new NotFoundException(Error.CUSTOMER_NOT_FOUND_ID, customerId);
         }
     }
 
     @Override
     public Asset getAsset(Long assetId) {
-        return assetRepository.findById(assetId).map(AssetMapper::toModel).orElseThrow(() -> new AssetNotFoundException(assetId));
+        return assetRepository.findById(assetId).map(AssetMapper::toModel).orElseThrow(() -> new NotFoundException(Error.ASSET_NOT_FOUND_ID, assetId));
     }
 
 }
