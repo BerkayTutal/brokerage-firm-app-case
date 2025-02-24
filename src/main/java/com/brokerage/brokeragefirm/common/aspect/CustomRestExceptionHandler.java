@@ -1,9 +1,6 @@
 package com.brokerage.brokeragefirm.common.aspect;
 
-import com.brokerage.brokeragefirm.common.exception.CustomException;
-import com.brokerage.brokeragefirm.common.exception.DuplicateEntryException;
-import com.brokerage.brokeragefirm.common.exception.NotFoundException;
-import com.brokerage.brokeragefirm.common.exception.PermissionException;
+import com.brokerage.brokeragefirm.common.exception.*;
 import com.brokerage.brokeragefirm.common.mapper.CustomExceptionResponseMapper;
 import com.brokerage.brokeragefirm.rest.dto.CustomExceptionResponse;
 import org.springframework.http.HttpStatus;
@@ -23,6 +20,12 @@ public class CustomRestExceptionHandler {
     @ExceptionHandler(PermissionException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public CustomExceptionResponse handlePermissionException(CustomException ce) {
+        return CustomExceptionResponseMapper.toResponse(ce);
+    }
+
+    @ExceptionHandler(OperationNotAllowedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public CustomExceptionResponse handleOperationNotAllowedException(CustomException ce) {
         return CustomExceptionResponseMapper.toResponse(ce);
     }
 

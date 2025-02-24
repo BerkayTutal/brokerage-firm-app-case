@@ -5,10 +5,6 @@ import com.brokerage.brokeragefirm.service.model.Customer;
 
 public class CustomerResponseMapper {
     public static CustomerResponse toResponse(Customer customer) {
-        return CustomerResponse.builder()
-                .id(customer.getId())
-                .email(customer.getEmail())
-                .roles(customer.getRoles())
-                .build();
+        return new CustomerResponse(customer.getId(), customer.getEmail(), customer.getRoles());
     }
 }

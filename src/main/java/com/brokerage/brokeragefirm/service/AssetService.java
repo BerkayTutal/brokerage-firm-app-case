@@ -17,4 +17,6 @@ public interface AssetService {
     List<Asset> getAssetsByCustomerId(Long customerId);
 
     Asset getAsset(Long assetId);
+
+    Asset getAsset(Long customerId, String assetName);
 }

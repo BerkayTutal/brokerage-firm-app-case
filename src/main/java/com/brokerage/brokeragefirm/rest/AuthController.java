@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Transactional
 @RequiredArgsConstructor
-public class AuthRestController {
+public class AuthController {
 
     private final JwtUtil jwtUtil;
 
@@ -42,14 +42,14 @@ public class AuthRestController {
     @ResponseStatus(HttpStatus.OK)
     public AuthResponse login(@RequestBody @Valid CustomerRequest authRequest) {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.email(), authRequest.password()));
         } catch (BadCredentialsException ex) {
             throw new PermissionException(Error.INCORRECT_EMAIL_PASSWORD);
         }
-        final CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(authRequest.getEmail());
+        final CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(authRequest.email());
         final String token = jwtUtil.generateToken(userDetails);
 
-        return AuthResponse.builder().userId(userDetails.getCustomer().getId()).token(token).build();
+        return new AuthResponse(userDetails.getCustomer().getId(), token);
     }
 
     @PostMapping("/register")

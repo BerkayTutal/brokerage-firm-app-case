@@ -8,4 +8,5 @@ public record AssetResponse(
         String assetName,
         BigDecimal size,
         BigDecimal usableSize
-) {}
+) {
+}

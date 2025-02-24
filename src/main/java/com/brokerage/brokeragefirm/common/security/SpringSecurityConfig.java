@@ -1,5 +1,6 @@
 package com.brokerage.brokeragefirm.common.security;
 
+import com.brokerage.brokeragefirm.common.constants.Constants;
 import com.brokerage.brokeragefirm.common.security.auth.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -33,8 +34,8 @@ public class SpringSecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/login", "/register").permitAll()
-                                .requestMatchers("/customers").hasRole("ADMIN")
-                                .requestMatchers("/assets").hasRole("ADMIN")
+                                .requestMatchers("/customers").hasRole(Constants.ROLE_ADMIN)
+                                .requestMatchers("/assets").hasRole(Constants.ROLE_ADMIN)
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

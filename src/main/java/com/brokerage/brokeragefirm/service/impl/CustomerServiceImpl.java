@@ -1,5 +1,6 @@
 package com.brokerage.brokeragefirm.service.impl;
 
+import com.brokerage.brokeragefirm.common.constants.Constants;
 import com.brokerage.brokeragefirm.common.enums.Error;
 import com.brokerage.brokeragefirm.common.exception.DuplicateEntryException;
 import com.brokerage.brokeragefirm.common.exception.NotFoundException;
@@ -7,8 +8,10 @@ import com.brokerage.brokeragefirm.common.mapper.CustomerMapper;
 import com.brokerage.brokeragefirm.common.mapper.RoleMapper;
 import com.brokerage.brokeragefirm.repository.CustomerRepository;
 import com.brokerage.brokeragefirm.repository.entity.CustomerEntity;
+import com.brokerage.brokeragefirm.service.AssetService;
 import com.brokerage.brokeragefirm.service.CustomerService;
 import com.brokerage.brokeragefirm.service.RoleService;
+import com.brokerage.brokeragefirm.service.model.Asset;
 import com.brokerage.brokeragefirm.service.model.Customer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,10 +30,12 @@ public class CustomerServiceImpl implements CustomerService {
     private final RoleService roleService;
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AssetService assetService;
 
 
     @Override
     public Customer registerCustomer(Customer customer) {
+
         CustomerEntity customerEntity = CustomerEntity.builder()
                 .email(customer.getEmail())
                 .password(passwordEncoder.encode(customer.getPassword()))
@@ -39,6 +44,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         try {
             customerEntity = customerRepository.save(customerEntity);
+            assetService.createAsset(Asset.builder().customerId(customerEntity.getId()).assetName(Constants.ASSET_TRY).build());
         } catch (Exception e) {
             throw new DuplicateEntryException(Error.EMAIL_ALREADY_EXISTS, customer.getEmail());
         }

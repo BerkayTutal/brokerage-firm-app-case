@@ -5,8 +5,6 @@ import com.brokerage.brokeragefirm.rest.dto.CustomExceptionResponse;
 
 public class CustomExceptionResponseMapper {
     public static CustomExceptionResponse toResponse(CustomException exception) {
-        return CustomExceptionResponse.builder()
-                .message(exception.getMessage())
-                .build();
+        return new CustomExceptionResponse(exception.getMessage());
     }
 }

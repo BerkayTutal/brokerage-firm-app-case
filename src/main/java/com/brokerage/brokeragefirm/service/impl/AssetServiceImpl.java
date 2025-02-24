@@ -1,21 +1,18 @@
 package com.brokerage.brokeragefirm.service.impl;
 
-import com.brokerage.brokeragefirm.common.exception.DuplicateEntryException;
 import com.brokerage.brokeragefirm.common.enums.Error;
+import com.brokerage.brokeragefirm.common.exception.DuplicateEntryException;
 import com.brokerage.brokeragefirm.common.exception.NotFoundException;
-import com.brokerage.brokeragefirm.common.exception.PermissionException;
 import com.brokerage.brokeragefirm.common.mapper.AssetMapper;
 import com.brokerage.brokeragefirm.repository.AssetRepository;
 import com.brokerage.brokeragefirm.repository.CustomerRepository;
 import com.brokerage.brokeragefirm.repository.entity.AssetEntity;
-import com.brokerage.brokeragefirm.repository.entity.CustomerEntity;
 import com.brokerage.brokeragefirm.service.AssetService;
 import com.brokerage.brokeragefirm.service.model.Asset;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -77,6 +74,13 @@ public class AssetServiceImpl implements AssetService {
     @Override
     public Asset getAsset(Long assetId) {
         return assetRepository.findById(assetId).map(AssetMapper::toModel).orElseThrow(() -> new NotFoundException(Error.ASSET_NOT_FOUND_ID, assetId));
+    }
+
+    @Override
+    public Asset getAsset(Long customerId, String assetName) {
+        return assetRepository.findByCustomerIdAndAssetName(customerId, assetName)
+                .map(AssetMapper::toModel)
+                .orElseThrow(() -> new NotFoundException(Error.ASSET_NOT_FOUND_ASSET_CUSTOMER, assetName, customerId));
     }
 
 }

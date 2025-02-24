@@ -3,7 +3,6 @@ package com.brokerage.brokeragefirm.common.mapper;
 import com.brokerage.brokeragefirm.repository.entity.AssetEntity;
 import com.brokerage.brokeragefirm.repository.entity.CustomerEntity;
 import com.brokerage.brokeragefirm.service.model.Asset;
-import com.brokerage.brokeragefirm.service.model.Customer;
 
 public class AssetMapper {
 

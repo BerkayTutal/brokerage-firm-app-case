@@ -7,8 +7,8 @@ public class CustomerRequestMapper {
     public static Customer toModel(CustomerRequest customerRequest, Long id) {
         return Customer.builder()
                 .id(id)
-                .email(customerRequest.getEmail())
-                .password(customerRequest.getPassword())
+                .email(customerRequest.email())
+                .password(customerRequest.password())
                 .build();
     }
 }

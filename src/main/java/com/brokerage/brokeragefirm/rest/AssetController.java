@@ -23,6 +23,7 @@ import java.util.List;
 public class AssetController {
     private final AssetService assetService;
 
+    //Only Admin
     @GetMapping
     public ResponseEntity<List<AssetResponse>> getAllAssets() {
         return ResponseEntity.ok(assetService.getAllAssets().stream().map(AssetResponseMapper::toResponse).toList());
@@ -42,12 +43,15 @@ public class AssetController {
     }
 
     //TODO 400 bad request exception handling
+    //Only Admin
     @PostMapping
     public ResponseEntity<AssetResponse> addAsset(@Valid @RequestBody AssetRequest assetRequest) {
         Asset asset = assetService.createAsset(AssetRequestMapper.toModel(assetRequest));
         return ResponseEntity.ok(AssetResponseMapper.toResponse(asset));
     }
 
+
+    //Only Admin
     @PutMapping
     public ResponseEntity<AssetResponse> updateAsset(@Valid @RequestBody AssetRequest assetRequest) {
         Asset asset = assetService.updateAsset(AssetRequestMapper.toModel(assetRequest));

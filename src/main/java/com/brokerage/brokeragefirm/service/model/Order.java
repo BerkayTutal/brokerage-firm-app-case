@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
 @Builder
 public class Order {
     private Long id;
-    private Customer customer;
+    private Long customerId;
     private String assetName;
-    private Side side;
+    private Side orderSide;
     private BigDecimal size;
     private BigDecimal price;
     private Status status;
