@@ -46,11 +46,16 @@ public class OrderController {
 
 
     @ValidateOwnershipOrder
-    @PutMapping("/{orderId}")
+    @PutMapping("/{orderId}/cancel")
     public ResponseEntity<OrderResponse> cancelOrder(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long orderId) {
         return ResponseEntity.ok(OrderResponseMapper.toResponse(orderService.cancelOrder(orderId)));
     }
 
+    @PreAuthorize("hasRole('" + Constants.ROLE_ADMIN + "')")
+    @PutMapping("/{orderId}/match")
+    public ResponseEntity<OrderResponse> matchOrder(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long orderId) {
+        return ResponseEntity.ok(OrderResponseMapper.toResponse(orderService.matchOrder(orderId)));
+    }
 
     @ValidateOwnershipOrder
     @PostMapping

@@ -19,4 +19,6 @@ public interface AssetService {
     Asset getAsset(Long assetId);
 
     Asset getAsset(Long customerId, String assetName);
+
+    boolean exists(Long customerId, String assetName);
 }

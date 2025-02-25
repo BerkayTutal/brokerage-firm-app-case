@@ -83,4 +83,8 @@ public class AssetServiceImpl implements AssetService {
                 .orElseThrow(() -> new NotFoundException(Error.ASSET_NOT_FOUND_ASSET_CUSTOMER, assetName, customerId));
     }
 
+    @Override
+    public boolean exists(Long customerId, String assetName) {
+        return assetRepository.existsByCustomerIdAndAssetName(customerId, assetName);
+    }
 }

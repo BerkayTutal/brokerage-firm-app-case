@@ -60,6 +60,53 @@ public class OrderServiceImpl implements OrderService {
         return OrderMapper.toModel(orderRepository.save(orderEntity));
     }
 
+    @Transactional
+    @Override
+    public Order matchOrder(Long orderId) {
+
+        OrderEntity orderEntity = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException(Error.ORDER_NOT_FOUND_ID, orderId));
+
+        if (!orderEntity.getStatus().equals(Status.PENDING)) {
+            throw new OperationNotAllowedException(Error.NOT_ALLOWED_STATE_CHANGE, orderEntity.getStatus(), Status.MATCHED);
+        }
+        Asset tryAsset = assetService.getAsset(orderEntity.getCustomer().getId(), Constants.ASSET_TRY);
+
+        if (orderEntity.getOrderSide().equals(Side.BUY)) {
+            tryAsset.setSize(tryAsset.getSize().subtract(orderEntity.getSize().multiply(orderEntity.getPrice())));
+
+            //Add bought asset or create from scratch
+            if(assetService.exists(orderEntity.getCustomer().getId(), orderEntity.getAssetName())) {
+                Asset boughtAsset = assetService.getAsset(orderEntity.getCustomer().getId(), orderEntity.getAssetName());
+                boughtAsset.setSize(boughtAsset.getSize().add(orderEntity.getSize()));
+                boughtAsset.setUsableSize(boughtAsset.getUsableSize().add(orderEntity.getSize()));
+                assetService.updateAsset(boughtAsset);
+            } else {
+                Asset newAsset = Asset.builder()
+                        .customerId(orderEntity.getCustomer().getId())
+                        .assetName(orderEntity.getAssetName())
+                        .size(orderEntity.getSize())
+                        .usableSize(orderEntity.getSize())
+                        .build();
+                assetService.createAsset(newAsset);
+            }
+
+        } else {
+            Asset sellingAsset = assetService.getAsset(orderEntity.getCustomer().getId(), orderEntity.getAssetName());
+            sellingAsset.setSize(sellingAsset.getSize().subtract(orderEntity.getSize()));
+            assetService.updateAsset(sellingAsset);
+
+            BigDecimal soldFor = orderEntity.getSize().multiply(orderEntity.getPrice());
+            tryAsset.setSize(tryAsset.getSize().add(soldFor));
+            tryAsset.setUsableSize(tryAsset.getUsableSize().add(soldFor));
+        }
+        assetService.updateAsset(tryAsset);
+
+        orderEntity.setStatus(Status.MATCHED);
+
+        return OrderMapper.toModel(orderRepository.save(orderEntity));
+    }
+
 
     @Override
     public List<Order> getAllOrders() {
@@ -104,5 +151,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> getOrdersByCustomerId(Long customerId) {
         return orderRepository.findAllByCustomerId(customerId).stream().map(OrderMapper::toModel).toList();
+    }
+
+    @Override
+    public boolean existsById(Long orderId) {
+        return orderRepository.existsById(orderId);
     }
 }
