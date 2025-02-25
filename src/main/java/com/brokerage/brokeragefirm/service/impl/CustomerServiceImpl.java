@@ -34,17 +34,17 @@ public class CustomerServiceImpl implements CustomerService {
 
 
     @Override
-    public Customer registerCustomer(Customer customer) {
+    public Customer register(Customer customer) {
 
         CustomerEntity customerEntity = CustomerEntity.builder()
                 .email(customer.getEmail())
                 .password(passwordEncoder.encode(customer.getPassword()))
-                .roles(Set.of(RoleMapper.toEntity(roleService.getRoleByName(ROLE_CUSTOMER))))
+                .roles(Set.of(RoleMapper.toEntity(roleService.get(ROLE_CUSTOMER))))
                 .build();
 
         try {
             customerEntity = customerRepository.save(customerEntity);
-            assetService.createAsset(Asset.builder().customerId(customerEntity.getId()).assetName(Constants.ASSET_TRY).build());
+            assetService.create(Asset.builder().customerId(customerEntity.getId()).assetName(Constants.ASSET_TRY).build());
         } catch (Exception e) {
             throw new DuplicateEntryException(Error.EMAIL_ALREADY_EXISTS, customer.getEmail());
         }
@@ -52,14 +52,14 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer getCustomerByEmail(String email) {
+    public Customer get(String email) {
         return customerRepository.findCustomerByEmail(email)
                 .map(CustomerMapper::toModel)
                 .orElseThrow(() -> new NotFoundException(Error.CUSTOMER_NOT_FOUND_EMAIL, email));
     }
 
     @Override
-    public Customer getCustomerById(Long id) {
+    public Customer get(Long id) {
         return customerRepository.findById(id)
                 .map(CustomerMapper::toModel)
                 .orElseThrow(() -> new NotFoundException(Error.CUSTOMER_NOT_FOUND_ID, id));
@@ -78,12 +78,12 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<Customer> getAllCustomers() {
+    public List<Customer> getAll() {
         return customerRepository.findAll().stream().map(CustomerMapper::toModel).collect(Collectors.toList());
     }
 
     @Override
-    public boolean existsById(Long id) {
+    public boolean exists(Long id) {
         return customerRepository.existsById(id);
     }
 

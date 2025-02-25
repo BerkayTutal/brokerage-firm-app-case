@@ -3,22 +3,19 @@ package com.brokerage.brokeragefirm.service;
 import com.brokerage.brokeragefirm.service.model.Order;
 import jakarta.transaction.Transactional;
 
-import java.util.Arrays;
 import java.util.List;
 
 public interface OrderService {
-    Order createOrder(Order order);
+    Order create(Order order);
 
     @Transactional
-    Order matchOrder(Long orderId);
+    Order match(Long orderId);
 
-    List<Order> getAllOrders();
+    List<Order> getAll();
 
-    Order getOrder(Long orderId);
+    Order get(Long orderId);
 
-    Order cancelOrder(Long orderId);
+    Order cancel(Long orderId);
 
-    List<Order> getOrdersByCustomerId(Long customerId);
-
-    boolean existsById(Long orderId);
+    List<Order> getAll(Long customerId);
 }

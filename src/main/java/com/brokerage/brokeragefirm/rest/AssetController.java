@@ -25,36 +25,36 @@ public class AssetController {
 
     //Only Admin
     @GetMapping
-    public ResponseEntity<List<AssetResponse>> getAllAssets() {
-        return ResponseEntity.ok(assetService.getAllAssets().stream().map(AssetResponseMapper::toResponse).toList());
+    public ResponseEntity<List<AssetResponse>> getAll() {
+        return ResponseEntity.ok(assetService.getAll().stream().map(AssetResponseMapper::toResponse).toList());
     }
 
     @ValidateOwnershipAsset
     @GetMapping("/{assetId}")
-    public ResponseEntity<AssetResponse> getAsset(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long assetId) {
-        return ResponseEntity.ok(AssetResponseMapper.toResponse(assetService.getAsset(assetId)));
+    public ResponseEntity<AssetResponse> get(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long assetId) {
+        return ResponseEntity.ok(AssetResponseMapper.toResponse(assetService.get(assetId)));
     }
 
     @ValidateOwnershipCustomer
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<AssetResponse>> getAssetsByCustomer(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long customerId) {
-        List<Asset> assets = assetService.getAssetsByCustomerId(customerId);
+    public ResponseEntity<List<AssetResponse>> getAll(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long customerId) {
+        List<Asset> assets = assetService.getAll(customerId);
         return ResponseEntity.ok(assets.stream().map(AssetResponseMapper::toResponse).toList());
     }
 
     //TODO 400 bad request exception handling
     //Only Admin
     @PostMapping
-    public ResponseEntity<AssetResponse> addAsset(@Valid @RequestBody AssetRequest assetRequest) {
-        Asset asset = assetService.createAsset(AssetRequestMapper.toModel(assetRequest));
+    public ResponseEntity<AssetResponse> add(@Valid @RequestBody AssetRequest assetRequest) {
+        Asset asset = assetService.create(AssetRequestMapper.toModel(assetRequest));
         return ResponseEntity.ok(AssetResponseMapper.toResponse(asset));
     }
 
 
     //Only Admin
     @PutMapping
-    public ResponseEntity<AssetResponse> updateAsset(@Valid @RequestBody AssetRequest assetRequest) {
-        Asset asset = assetService.updateAsset(AssetRequestMapper.toModel(assetRequest));
+    public ResponseEntity<AssetResponse> update(@Valid @RequestBody AssetRequest assetRequest) {
+        Asset asset = assetService.update(AssetRequestMapper.toModel(assetRequest));
         return ResponseEntity.ok(AssetResponseMapper.toResponse(asset));
     }
 

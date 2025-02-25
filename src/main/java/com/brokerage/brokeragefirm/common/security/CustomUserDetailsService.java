@@ -16,7 +16,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Customer customer = customerService.getCustomerByEmail(email);
+        Customer customer = customerService.get(email);
 
         return new CustomUserDetails(customer);
     }

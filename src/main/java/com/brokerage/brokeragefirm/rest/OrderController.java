@@ -28,39 +28,39 @@ public class OrderController {
     //TODO return page
     @PreAuthorize("hasRole('" + Constants.ROLE_ADMIN + "')")
     @GetMapping
-    public ResponseEntity<List<OrderResponse>> getAllOrders() {
-        return ResponseEntity.ok(orderService.getAllOrders().stream().map(OrderResponseMapper::toResponse).toList());
+    public ResponseEntity<List<OrderResponse>> getAll() {
+        return ResponseEntity.ok(orderService.getAll().stream().map(OrderResponseMapper::toResponse).toList());
     }
 
     @ValidateOwnershipOrder
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderResponse> getOrder(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long orderId) {
-        return ResponseEntity.ok(OrderResponseMapper.toResponse(orderService.getOrder(orderId)));
+    public ResponseEntity<OrderResponse> get(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long orderId) {
+        return ResponseEntity.ok(OrderResponseMapper.toResponse(orderService.get(orderId)));
     }
 
     @ValidateOwnershipCustomer
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<OrderResponse>> getOrdersByCustomer(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long customerId) {
-        return ResponseEntity.ok(orderService.getOrdersByCustomerId(customerId).stream().map(OrderResponseMapper::toResponse).toList());
+    public ResponseEntity<List<OrderResponse>> getAll(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long customerId) {
+        return ResponseEntity.ok(orderService.getAll(customerId).stream().map(OrderResponseMapper::toResponse).toList());
     }
 
 
     @ValidateOwnershipOrder
     @PutMapping("/{orderId}/cancel")
-    public ResponseEntity<OrderResponse> cancelOrder(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long orderId) {
-        return ResponseEntity.ok(OrderResponseMapper.toResponse(orderService.cancelOrder(orderId)));
+    public ResponseEntity<OrderResponse> cancel(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long orderId) {
+        return ResponseEntity.ok(OrderResponseMapper.toResponse(orderService.cancel(orderId)));
     }
 
     @PreAuthorize("hasRole('" + Constants.ROLE_ADMIN + "')")
     @PutMapping("/{orderId}/match")
-    public ResponseEntity<OrderResponse> matchOrder(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long orderId) {
-        return ResponseEntity.ok(OrderResponseMapper.toResponse(orderService.matchOrder(orderId)));
+    public ResponseEntity<OrderResponse> match(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long orderId) {
+        return ResponseEntity.ok(OrderResponseMapper.toResponse(orderService.match(orderId)));
     }
 
     @ValidateOwnershipOrder
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@AuthenticationPrincipal CustomUserDetails loggedUser, @Valid @RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<OrderResponse> create(@AuthenticationPrincipal CustomUserDetails loggedUser, @Valid @RequestBody OrderRequest orderRequest) {
         Order order = OrderRequestMapper.toModel(orderRequest);
-        return ResponseEntity.ok(OrderResponseMapper.toResponse(orderService.createOrder(order)));
+        return ResponseEntity.ok(OrderResponseMapper.toResponse(orderService.create(order)));
     }
 }

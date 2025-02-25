@@ -7,18 +7,18 @@ import java.util.List;
 
 public interface AssetService {
     @Transactional
-    Asset createAsset(Asset asset);
+    Asset create(Asset asset);
 
     @Transactional
-    Asset updateAsset(Asset asset);
+    Asset update(Asset asset);
 
-    List<Asset> getAllAssets();
+    List<Asset> getAll();
 
-    List<Asset> getAssetsByCustomerId(Long customerId);
+    List<Asset> getAll(Long customerId);
 
-    Asset getAsset(Long assetId);
+    Asset get(Long assetId);
 
-    Asset getAsset(Long customerId, String assetName);
+    Asset get(Long customerId, String assetName);
 
     boolean exists(Long customerId, String assetName);
 }

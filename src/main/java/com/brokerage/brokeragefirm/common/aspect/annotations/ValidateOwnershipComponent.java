@@ -71,7 +71,7 @@ public class ValidateOwnershipComponent {
     }
 
     private void checkCustomerExists(Long userId) {
-        if (!customerService.existsById(userId)) {
+        if (!customerService.exists(userId)) {
             throw new NotFoundException(Error.CUSTOMER_NOT_FOUND_ID, userId);
         }
     }
@@ -84,14 +84,14 @@ public class ValidateOwnershipComponent {
     }
 
     private void checkOwnershipAsset(CustomUserDetails loggedUser, Long assetId) {
-        Asset asset = assetService.getAsset(assetId);
+        Asset asset = assetService.get(assetId);
         if (!loggedUser.isAdmin() && (assetId != null && !loggedUser.getCustomer().getId().equals(asset.getCustomerId()))) {
             throw new PermissionException(Error.NO_PERMISSION_ASSET);
         }
     }
 
     private void checkOwnershipOrder(CustomUserDetails loggedUser, Long orderId) {
-        Order order = orderService.getOrder(orderId);
+        Order order = orderService.get(orderId);
         if (!loggedUser.isAdmin() && (orderId != null && !loggedUser.getCustomer().getId().equals(order.getCustomerId()))) {
             throw new PermissionException(Error.NO_PERMISSION_ORDER);
         }

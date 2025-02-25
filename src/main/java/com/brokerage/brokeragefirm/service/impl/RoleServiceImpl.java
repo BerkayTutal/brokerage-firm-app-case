@@ -13,7 +13,7 @@ public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
 
     @Override
-    public Role getRoleByName(String name) {
+    public Role get(String name) {
         return RoleMapper.toModel(roleRepository.getByName(name));
     }
 }

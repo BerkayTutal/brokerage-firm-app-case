@@ -24,7 +24,7 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     @Transactional
-    public Asset createAsset(Asset asset) {
+    public Asset create(Asset asset) {
 
         //Check customer exists
         if (!customerRepository.existsById(asset.getCustomerId())) {
@@ -42,7 +42,7 @@ public class AssetServiceImpl implements AssetService {
 
     @Transactional
     @Override
-    public Asset updateAsset(Asset asset) {
+    public Asset update(Asset asset) {
 
         //check if asset exists by customer
         AssetEntity existingAsset = assetRepository.findByCustomerIdAndAssetName(asset.getCustomerId(), asset.getAssetName())
@@ -58,12 +58,12 @@ public class AssetServiceImpl implements AssetService {
 
 
     @Override
-    public List<Asset> getAllAssets() {
+    public List<Asset> getAll() {
         return assetRepository.findAll().stream().map(AssetMapper::toModel).toList();
     }
 
     @Override
-    public List<Asset> getAssetsByCustomerId(Long customerId) {
+    public List<Asset> getAll(Long customerId) {
         if (customerRepository.existsById(customerId)) {
             return assetRepository.findAllByCustomerId(customerId).stream().map(AssetMapper::toModel).toList();
         } else {
@@ -72,12 +72,12 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public Asset getAsset(Long assetId) {
+    public Asset get(Long assetId) {
         return assetRepository.findById(assetId).map(AssetMapper::toModel).orElseThrow(() -> new NotFoundException(Error.ASSET_NOT_FOUND_ID, assetId));
     }
 
     @Override
-    public Asset getAsset(Long customerId, String assetName) {
+    public Asset get(Long customerId, String assetName) {
         return assetRepository.findByCustomerIdAndAssetName(customerId, assetName)
                 .map(AssetMapper::toModel)
                 .orElseThrow(() -> new NotFoundException(Error.ASSET_NOT_FOUND_ASSET_CUSTOMER, assetName, customerId));

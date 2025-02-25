@@ -27,22 +27,22 @@ public class CustomerController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{customerId}")
     @ValidateOwnershipCustomer
-    public ResponseEntity<CustomerResponse> getCustomerInfo(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long customerId) {
-        Customer customer = customerService.getCustomerById(customerId);
+    public ResponseEntity<CustomerResponse> get(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long customerId) {
+        Customer customer = customerService.get(customerId);
         return ResponseEntity.ok(CustomerResponseMapper.toResponse(customer));
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{customerId}")
     @ValidateOwnershipCustomer
-    public ResponseEntity<CustomerResponse> updateCustomer(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long customerId, @RequestBody @Valid CustomerRequest customerRequest) {
+    public ResponseEntity<CustomerResponse> update(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long customerId, @RequestBody @Valid CustomerRequest customerRequest) {
         Customer customer = customerService.updateEmailPassword(CustomerRequestMapper.toModel(customerRequest, customerId));
         return ResponseEntity.ok(CustomerResponseMapper.toResponse(customer));
     }
 
     //Only ADMIN role
     @GetMapping
-    public List<CustomerResponse> getAllCustomers() {
-        return customerService.getAllCustomers().stream().map(CustomerResponseMapper::toResponse).collect(Collectors.toList());
+    public List<CustomerResponse> getAll() {
+        return customerService.getAll().stream().map(CustomerResponseMapper::toResponse).collect(Collectors.toList());
     }
 }

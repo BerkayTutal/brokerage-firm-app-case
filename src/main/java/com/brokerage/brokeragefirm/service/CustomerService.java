@@ -6,16 +6,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface CustomerService {
-    Customer registerCustomer(Customer customer);
+    Customer register(Customer customer);
 
-    Customer getCustomerByEmail(String email);
+    Customer get(String email);
 
-    Customer getCustomerById(Long id);
+    Customer get(Long id);
 
     @Transactional
     Customer updateEmailPassword(Customer customer);
 
-    List<Customer> getAllCustomers();
+    List<Customer> getAll();
 
-    boolean existsById(Long id);
+    boolean exists(Long id);
 }

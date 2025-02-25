@@ -55,7 +55,7 @@ public class AuthController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public CustomerResponse register(@RequestBody @Valid CustomerRequest customerRequest) {
-        Customer customer = customerService.registerCustomer(CustomerRequestMapper.toModel(customerRequest, null));
+        Customer customer = customerService.register(CustomerRequestMapper.toModel(customerRequest, null));
         return CustomerResponseMapper.toResponse(customer);
     }
 }
