@@ -17,11 +17,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -335,33 +341,21 @@ class OrderServiceTest {
 
     @Test
     void getAll_ReturnsAllOrders() {
-        // given
-        OrderEntity orderEntity1 = OrderEntity.builder()
-                .id(1L)
-                .assetName("ASSET_ABC")
-                .orderSide(Side.BUY)
-                .status(Status.PENDING)
-                .customer(CustomerEntity.builder().id(1L).build())
-                .build();
+        // Given
+        Pageable pageable = PageRequest.of(0, 10);
+        List<OrderEntity> orderEntities = List.of(new OrderEntity(), new OrderEntity());
+        Page<OrderEntity> pagedResult = new PageImpl<>(orderEntities, pageable, orderEntities.size());
 
-        OrderEntity orderEntity2 = OrderEntity.builder()
-                .id(2L)
-                .assetName("ASSET_XYZ")
-                .orderSide(Side.SELL)
-                .status(Status.MATCHED)
-                .customer(CustomerEntity.builder().id(1L).build())
-                .build();
+        when(orderRepository.findAll(pageable)).thenReturn(pagedResult);
 
-        when(orderRepository.findAll()).thenReturn(List.of(orderEntity1, orderEntity2));
+        // When
+        Page<Order> result = orderServiceImpl.getAll(pageable);
 
-        // when
-        List<Order> orders = orderServiceImpl.getAll();
-
-        // then
-        assertNotNull(orders);
-        assertEquals(2, orders.size());
-        verify(orderRepository, times(1)).findAll();
+        // Then
+        assertThat(result.getContent()).hasSize(2);
+        verify(orderRepository, times(1)).findAll(pageable);
     }
+
 
     @Test
     void get_ShouldReturnOrder_WhenOrderExists() {
@@ -401,49 +395,39 @@ class OrderServiceTest {
 
     @Test
     void getAll_ShouldReturnAllOrders_WhenOrdersExist() {
-        // given
-        OrderEntity orderEntity1 = OrderEntity.builder()
-                .id(1L)
-                .assetName("ASSET_ABC")
-                .orderSide(Side.BUY)
-                .status(Status.PENDING)
-                .customer(CustomerEntity.builder().id(1L).build())
-                .build();
+        // Given
+        Pageable pageable = PageRequest.of(0, 5);
+        List<OrderEntity> orderEntities = List.of(new OrderEntity(), new OrderEntity(), new OrderEntity());
+        Page<OrderEntity> pagedResult = new PageImpl<>(orderEntities, pageable, orderEntities.size());
 
-        OrderEntity orderEntity2 = OrderEntity.builder()
-                .id(2L)
-                .assetName("ASSET_XYZ")
-                .orderSide(Side.SELL)
-                .status(Status.MATCHED)
-                .customer(CustomerEntity.builder().id(1L).build())
-                .build();
+        when(orderRepository.findAll(pageable)).thenReturn(pagedResult);
 
-        when(orderRepository.findAll()).thenReturn(List.of(orderEntity1, orderEntity2));
+        // When
+        Page<Order> result = orderServiceImpl.getAll(pageable);
 
-        // when
-        List<Order> orders = orderServiceImpl.getAll();
-
-        // then
-        assertNotNull(orders);
-        assertEquals(2, orders.size());
-        assertEquals("ASSET_ABC", orders.get(0).getAssetName());
-        assertEquals("ASSET_XYZ", orders.get(1).getAssetName());
-        verify(orderRepository, times(1)).findAll();
+        // Then
+        assertThat(result.getContent()).isNotEmpty();
+        assertThat(result.getContent()).hasSize(3);
+        verify(orderRepository, times(1)).findAll(pageable);
     }
+
 
     @Test
     void getAll_ShouldReturnEmptyList_WhenNoOrdersExist() {
-        // given
-        when(orderRepository.findAll()).thenReturn(List.of());
+        // Given
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<OrderEntity> emptyResult = new PageImpl<>(Collections.emptyList(), pageable, 0);
 
-        // when
-        List<Order> orders = orderServiceImpl.getAll();
+        when(orderRepository.findAll(pageable)).thenReturn(emptyResult);
 
-        // then
-        assertNotNull(orders);
-        assertTrue(orders.isEmpty());
-        verify(orderRepository, times(1)).findAll();
+        // When
+        Page<Order> result = orderServiceImpl.getAll(pageable);
+
+        // Then
+        assertThat(result.getContent()).isEmpty();
+        verify(orderRepository, times(1)).findAll(pageable);
     }
+
 
     @Test
     void cancel_ShouldCancelBuyOrder_WhenOrderIsPending() {

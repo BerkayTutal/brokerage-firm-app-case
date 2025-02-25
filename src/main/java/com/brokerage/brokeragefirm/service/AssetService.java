@@ -4,17 +4,17 @@ import com.brokerage.brokeragefirm.service.model.Asset;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface AssetService {
-    @Transactional
     Asset create(Asset asset);
 
-    @Transactional
     Asset update(Asset asset);
 
-    List<Asset> getAll();
+    Page<Asset> getAll(Pageable pageable);
 
-    List<Asset> getAll(Long customerId);
+    Page<Asset> getAll(Long customerId, Pageable pageable);
 
     Asset get(Long assetId);
 

@@ -9,7 +9,7 @@ public class AssetMapper {
     public static Asset toModel(AssetEntity entity) {
         return Asset.builder()
                 .id(entity.getId())
-                .customerId(entity.getCustomer().getId()) // Ensure Customer is loaded
+                .customerId(entity.getCustomer() == null ? null : entity.getCustomer().getId()) // Ensure Customer is loaded
                 .assetName(entity.getAssetName())
                 .size(entity.getSize())
                 .usableSize(entity.getUsableSize())

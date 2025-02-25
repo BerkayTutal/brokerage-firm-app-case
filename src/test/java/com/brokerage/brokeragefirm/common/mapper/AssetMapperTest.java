@@ -40,21 +40,6 @@ class AssetMapperTest {
     }
 
     @Test
-    void toModel_NullCustomerInAssetEntity_ThrowsNullPointerException() {
-        // given
-        AssetEntity assetEntity = AssetEntity.builder()
-                .id(456L)
-                .customer(null)
-                .assetName("Test Asset")
-                .size(BigDecimal.valueOf(100.00))
-                .usableSize(BigDecimal.valueOf(75.00))
-                .build();
-
-        // when and then
-        assertThrows(NullPointerException.class, () -> AssetMapper.toModel(assetEntity));
-    }
-
-    @Test
     void toEntity_NullAssetModel_ThrowsNullPointerException() {
         // given
         Asset asset = null;

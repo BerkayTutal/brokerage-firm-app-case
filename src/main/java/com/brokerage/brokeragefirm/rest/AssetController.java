@@ -11,11 +11,11 @@ import com.brokerage.brokeragefirm.service.AssetService;
 import com.brokerage.brokeragefirm.service.model.Asset;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -23,10 +23,12 @@ import java.util.List;
 public class AssetController {
     private final AssetService assetService;
 
-    //Only Admin
+    // Only Admin
     @GetMapping
-    public ResponseEntity<List<AssetResponse>> getAll() {
-        return ResponseEntity.ok(assetService.getAll().stream().map(AssetResponseMapper::toResponse).toList());
+    public ResponseEntity<Page<AssetResponse>> getAll(Pageable pageable) {
+        Page<Asset> assets = assetService.getAll(pageable);
+        Page<AssetResponse> assetResponses = assets.map(AssetResponseMapper::toResponse);
+        return ResponseEntity.ok(assetResponses);
     }
 
     @ValidateOwnershipAsset
@@ -37,24 +39,25 @@ public class AssetController {
 
     @ValidateOwnershipCustomer
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<AssetResponse>> getAll(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long customerId) {
-        List<Asset> assets = assetService.getAll(customerId);
-        return ResponseEntity.ok(assets.stream().map(AssetResponseMapper::toResponse).toList());
+    public ResponseEntity<Page<AssetResponse>> getAll(@AuthenticationPrincipal CustomUserDetails loggedUser,
+                                                      @PathVariable Long customerId,
+                                                      Pageable pageable) {
+        Page<Asset> assets = assetService.getAll(customerId, pageable);
+        Page<AssetResponse> assetResponses = assets.map(AssetResponseMapper::toResponse);
+        return ResponseEntity.ok(assetResponses);
     }
 
-    //Only Admin
+    // Only Admin
     @PostMapping
     public ResponseEntity<AssetResponse> add(@Valid @RequestBody AssetRequest assetRequest) {
         Asset asset = assetService.create(AssetRequestMapper.toModel(assetRequest));
         return ResponseEntity.ok(AssetResponseMapper.toResponse(asset));
     }
 
-
-    //Only Admin
+    // Only Admin
     @PutMapping
     public ResponseEntity<AssetResponse> update(@Valid @RequestBody AssetRequest assetRequest) {
         Asset asset = assetService.update(AssetRequestMapper.toModel(assetRequest));
         return ResponseEntity.ok(AssetResponseMapper.toResponse(asset));
     }
-
 }

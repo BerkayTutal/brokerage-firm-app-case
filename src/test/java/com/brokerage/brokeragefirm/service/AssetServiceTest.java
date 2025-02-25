@@ -13,11 +13,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -158,73 +164,90 @@ class AssetServiceTest {
     //getAll
     @Test
     void testGetAll_ReturnsAllAssets() {
-        // given
-        Long customerId = 1L;
-        AssetEntity assetEntity1 = AssetEntity.builder().id(1L).assetName("Asset 1").customer(CustomerEntity.builder().id(customerId).build()).build();
-        AssetEntity assetEntity2 = AssetEntity.builder().id(2L).assetName("Asset 2").customer(CustomerEntity.builder().id(customerId).build()).build();
+        // Given
+        Pageable pageable = PageRequest.of(0, 5); // First page, 5 items per page
+        List<AssetEntity> assetEntities = List.of(
+                new AssetEntity(), new AssetEntity(), new AssetEntity()
+        );
+        Page<AssetEntity> pagedResult = new PageImpl<>(assetEntities, pageable, assetEntities.size());
 
-        when(assetRepository.findAll()).thenReturn(List.of(assetEntity1, assetEntity2));
+        when(assetRepository.findAll(pageable)).thenReturn(pagedResult);
 
-        // when
-        List<Asset> result = assetServiceImpl.getAll();
+        // When
+        Page<Asset> result = assetServiceImpl.getAll(pageable);
 
-        // then
-        verify(assetRepository, times(1)).findAll();
-        assertEquals(2, result.size());
-        assertEquals("Asset 1", result.get(0).getAssetName());
-        assertEquals("Asset 2", result.get(1).getAssetName());
+        // Then
+        assertThat(result.getContent()).hasSize(3);
+        assertThat(result.getTotalElements()).isEqualTo(3);
+        assertThat(result.getTotalPages()).isEqualTo(1);
+        verify(assetRepository, times(1)).findAll(pageable);
     }
 
+
     @Test
-    void testGetAll_NoAssets_ReturnsEmptyList() {
-        // given
-        when(assetRepository.findAll()).thenReturn(List.of());
+    void testGetAll_NoAssets_ReturnsEmptyPage() {
+        // Given
+        Pageable pageable = PageRequest.of(0, 10); // First page, 10 items per page
+        Page<AssetEntity> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
 
-        // when
-        List<Asset> result = assetServiceImpl.getAll();
+        when(assetRepository.findAll(pageable)).thenReturn(emptyPage);
 
-        // then
-        verify(assetRepository, times(1)).findAll();
-        assertTrue(result.isEmpty());
+        // When
+        Page<Asset> result = assetServiceImpl.getAll(pageable);
+
+        // Then
+        assertThat(result.getContent()).isEmpty();
+        assertThat(result.getTotalElements()).isZero();
+        assertThat(result.getTotalPages()).isZero();
+        verify(assetRepository, times(1)).findAll(pageable);
     }
 
 
     @Test
     void testGetAllByCustomerId_ValidCustomerId_ReturnsAssets() {
-        // given
+        // Given
         Long customerId = 1L;
-        AssetEntity assetEntity1 = AssetEntity.builder().id(1L).assetName("Asset 1").customer(CustomerEntity.builder().id(customerId).build()).build();
-        AssetEntity assetEntity2 = AssetEntity.builder().id(2L).assetName("Asset 2").customer(CustomerEntity.builder().id(customerId).build()).build();
+        Pageable pageable = PageRequest.of(0, 5); // First page, 5 items per page
+        List<AssetEntity> assetEntities = List.of(
+                new AssetEntity(), new AssetEntity()
+        );
+        Page<AssetEntity> pagedResult = new PageImpl<>(assetEntities, pageable, assetEntities.size());
 
         when(customerRepository.existsById(customerId)).thenReturn(true);
-        when(assetRepository.findAllByCustomerId(customerId)).thenReturn(List.of(assetEntity1, assetEntity2));
+        when(assetRepository.findAllByCustomerId(customerId, pageable)).thenReturn(pagedResult);
 
-        // when
-        List<Asset> result = assetServiceImpl.getAll(customerId);
+        // When
+        Page<Asset> result = assetServiceImpl.getAll(customerId, pageable);
 
-        // then
+        // Then
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getTotalPages()).isEqualTo(1);
         verify(customerRepository, times(1)).existsById(customerId);
-        verify(assetRepository, times(1)).findAllByCustomerId(customerId);
-        assertEquals(2, result.size());
-        assertEquals("Asset 1", result.get(0).getAssetName());
-        assertEquals("Asset 2", result.get(1).getAssetName());
+        verify(assetRepository, times(1)).findAllByCustomerId(customerId, pageable);
     }
 
+
     @Test
-    void getAllByCustomerId_NoAssets_ReturnsEmptyList() {
-        // given
+    void getAllByCustomerId_NoAssets_WithPagination_ReturnsEmptyPage
+            () {
+        // Given
         Long customerId = 1L;
+        Pageable pageable = PageRequest.of(0, 5); // First page, 5 items per page
+        Page<AssetEntity> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
 
         when(customerRepository.existsById(customerId)).thenReturn(true);
-        when(assetRepository.findAllByCustomerId(customerId)).thenReturn(List.of());
+        when(assetRepository.findAllByCustomerId(customerId, pageable)).thenReturn(emptyPage);
 
-        // when
-        List<Asset> result = assetServiceImpl.getAll(customerId);
+        // When
+        Page<Asset> result = assetServiceImpl.getAll(customerId, pageable);
 
-        // then
+        // Then
+        assertThat(result.getContent()).isEmpty();
+        assertThat(result.getTotalElements()).isZero();
+        assertThat(result.getTotalPages()).isZero();
         verify(customerRepository, times(1)).existsById(customerId);
-        verify(assetRepository, times(1)).findAllByCustomerId(customerId);
-        assertTrue(result.isEmpty());
+        verify(assetRepository, times(1)).findAllByCustomerId(customerId, pageable);
     }
 
 

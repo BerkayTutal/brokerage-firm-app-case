@@ -12,12 +12,13 @@ import com.brokerage.brokeragefirm.service.OrderService;
 import com.brokerage.brokeragefirm.service.model.Order;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -28,9 +29,12 @@ public class OrderController {
     //TODO return page
     @PreAuthorize("hasRole('" + Constants.ROLE_ADMIN + "')")
     @GetMapping
-    public ResponseEntity<List<OrderResponse>> getAll() {
-        return ResponseEntity.ok(orderService.getAll().stream().map(OrderResponseMapper::toResponse).toList());
+    public ResponseEntity<Page<OrderResponse>> getAll(Pageable pageable) {
+        Page<Order> orders = orderService.getAll(pageable);
+        Page<OrderResponse> orderResponses = orders.map(OrderResponseMapper::toResponse);
+        return ResponseEntity.ok(orderResponses);
     }
+
 
     @ValidateOwnershipOrder
     @GetMapping("/{orderId}")
@@ -40,8 +44,12 @@ public class OrderController {
 
     @ValidateOwnershipCustomer
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<OrderResponse>> getAll(@AuthenticationPrincipal CustomUserDetails loggedUser, @PathVariable Long customerId) {
-        return ResponseEntity.ok(orderService.getAll(customerId).stream().map(OrderResponseMapper::toResponse).toList());
+    public ResponseEntity<Page<OrderResponse>> getAll(@AuthenticationPrincipal CustomUserDetails loggedUser,
+                                                      @PathVariable Long customerId,
+                                                      Pageable pageable) {
+        Page<Order> orders = orderService.getAll(customerId, pageable);
+        Page<OrderResponse> orderResponses = orders.map(OrderResponseMapper::toResponse);
+        return ResponseEntity.ok(orderResponses);
     }
 
 

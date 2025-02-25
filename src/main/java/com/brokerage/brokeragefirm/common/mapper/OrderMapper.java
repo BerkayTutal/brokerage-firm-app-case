@@ -8,7 +8,7 @@ public class OrderMapper {
     public static Order toModel(OrderEntity orderEntity) {
         return Order.builder()
                 .id(orderEntity.getId())
-                .customerId(orderEntity.getCustomer().getId())
+                .customerId(orderEntity.getCustomer() != null ? orderEntity.getCustomer().getId() : null)
                 .assetName(orderEntity.getAssetName())
                 .orderSide(orderEntity.getOrderSide())
                 .size(orderEntity.getSize())

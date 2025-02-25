@@ -11,9 +11,9 @@ import com.brokerage.brokeragefirm.service.AssetService;
 import com.brokerage.brokeragefirm.service.model.Asset;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -58,18 +58,19 @@ public class AssetServiceImpl implements AssetService {
 
 
     @Override
-    public List<Asset> getAll() {
-        return assetRepository.findAll().stream().map(AssetMapper::toModel).toList();
+    public Page<Asset> getAll(Pageable pageable) {
+        return assetRepository.findAll(pageable).map(AssetMapper::toModel);
     }
 
     @Override
-    public List<Asset> getAll(Long customerId) {
+    public Page<Asset> getAll(Long customerId, Pageable pageable) {
         if (customerRepository.existsById(customerId)) {
-            return assetRepository.findAllByCustomerId(customerId).stream().map(AssetMapper::toModel).toList();
+            return assetRepository.findAllByCustomerId(customerId, pageable).map(AssetMapper::toModel);
         } else {
             throw new NotFoundException(Error.CUSTOMER_NOT_FOUND_ID, customerId);
         }
     }
+
 
     @Override
     public Asset get(Long assetId) {

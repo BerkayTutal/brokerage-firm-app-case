@@ -16,6 +16,8 @@ import com.brokerage.brokeragefirm.service.model.Asset;
 import com.brokerage.brokeragefirm.service.model.Order;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -107,11 +109,16 @@ public class OrderServiceImpl implements OrderService {
         return OrderMapper.toModel(orderRepository.save(orderEntity));
     }
 
+    @Override
+    public Page<Order> getAll(Pageable pageable) {
+        return orderRepository.findAll(pageable).map(OrderMapper::toModel);
+    }
 
     @Override
-    public List<Order> getAll() {
-        return orderRepository.findAll().stream().map(OrderMapper::toModel).toList();
+    public Page<Order> getAll(Long customerId, Pageable pageable) {
+        return orderRepository.findAllByCustomerId(customerId, pageable).map(OrderMapper::toModel);
     }
+
 
     @Override
     public Order get(Long orderId) {
@@ -148,8 +155,4 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    @Override
-    public List<Order> getAll(Long customerId) {
-        return orderRepository.findAllByCustomerId(customerId).stream().map(OrderMapper::toModel).toList();
-    }
 }
