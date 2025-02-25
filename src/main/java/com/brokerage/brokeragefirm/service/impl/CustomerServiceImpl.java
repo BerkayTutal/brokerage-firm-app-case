@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
-    private static final String ROLE_CUSTOMER = "CUSTOMER";
     private final RoleService roleService;
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
@@ -39,7 +38,7 @@ public class CustomerServiceImpl implements CustomerService {
         CustomerEntity customerEntity = CustomerEntity.builder()
                 .email(customer.getEmail())
                 .password(passwordEncoder.encode(customer.getPassword()))
-                .roles(Set.of(RoleMapper.toEntity(roleService.get(ROLE_CUSTOMER))))
+                .roles(Set.of(RoleMapper.toEntity(roleService.get(Constants.ROLE_CUSTOMER))))
                 .build();
 
         try {

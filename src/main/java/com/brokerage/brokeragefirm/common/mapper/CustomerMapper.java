@@ -23,13 +23,6 @@ public class CustomerMapper {
                 .build();
     }
 
-    private static Set<RoleEntity> getRoleEntitySet(Set<Role> roleSet) {
-        return roleSet == null ? null : roleSet
-                .stream()
-                .map(RoleMapper::toEntity)
-                .collect(Collectors.toSet());
-    }
-
     private static Set<Role> getRoleSet(Set<RoleEntity> roleEntitySet) {
         return roleEntitySet == null ? null : roleEntitySet.stream()
                 .map(RoleMapper::toModel)
