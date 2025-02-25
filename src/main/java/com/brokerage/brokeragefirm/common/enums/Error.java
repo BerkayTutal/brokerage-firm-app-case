@@ -20,7 +20,7 @@ public enum Error {
     ORDER_NOT_FOUND_ID("Order not found with id: %s"),
     NOT_ALLOWED_STATE_CHANGE("Not allowed to change state from %s to %s!"),
     ASSET_TRY_NOT_ALLOWED("Asset TRY is not allowed on orders!"),
-    INSUFFICENT_ASSET("Asset %s size is not enough for operation %s %s!");
+    INSUFFICIENT_ASSET("Asset %s size is not enough for operation %s %s!");
 
     private final String errorDescription;
 

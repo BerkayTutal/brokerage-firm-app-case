@@ -40,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
             Asset tryAsset = assetService.get(order.getCustomerId(), Constants.ASSET_TRY);
             BigDecimal usableSize = tryAsset.getUsableSize().subtract(order.getSize().multiply(order.getPrice()));
             if (usableSize.compareTo(BigDecimal.ZERO) < 0) {
-                throw new OperationNotAllowedException(Error.INSUFFICENT_ASSET, Constants.ASSET_TRY, order.getOrderSide(), order.getAssetName());
+                throw new OperationNotAllowedException(Error.INSUFFICIENT_ASSET, Constants.ASSET_TRY, order.getOrderSide(), order.getAssetName());
             }
             tryAsset.setUsableSize(usableSize);
             assetService.update(tryAsset);
@@ -48,7 +48,7 @@ public class OrderServiceImpl implements OrderService {
             Asset sellingAsset = assetService.get(order.getCustomerId(), order.getAssetName());
             BigDecimal usableSize = sellingAsset.getUsableSize().subtract(order.getSize());
             if (usableSize.compareTo(BigDecimal.ZERO) < 0) {
-                throw new OperationNotAllowedException(Error.INSUFFICENT_ASSET, order.getAssetName(), order.getOrderSide(), order.getAssetName());
+                throw new OperationNotAllowedException(Error.INSUFFICIENT_ASSET, order.getAssetName(), order.getOrderSide(), order.getAssetName());
             }
             sellingAsset.setUsableSize(usableSize);
             assetService.update(sellingAsset);
