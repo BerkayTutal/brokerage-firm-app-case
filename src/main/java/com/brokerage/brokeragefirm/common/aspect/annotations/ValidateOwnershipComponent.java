@@ -58,12 +58,9 @@ public class ValidateOwnershipComponent {
 
         if (args != null && args[0] != null) {
             final var customUserDetails = ((CustomUserDetails) args[0]);
-            if (args[1] instanceof Long) {
-                final var orderId = ((Long) args[1]);
+            if (args[1] instanceof Long orderId) {
                 checkOwnershipOrder(customUserDetails, orderId);
-            }
-            else if(args[1] instanceof OrderRequest) {
-                final var order = ((OrderRequest) args[1]);
+            } else if (args[1] instanceof OrderRequest order) {
                 checkOwnershipUser(customUserDetails, order.customerId());
             }
         }
