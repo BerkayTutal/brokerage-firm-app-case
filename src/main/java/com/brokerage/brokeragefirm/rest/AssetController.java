@@ -42,7 +42,6 @@ public class AssetController {
         return ResponseEntity.ok(assets.stream().map(AssetResponseMapper::toResponse).toList());
     }
 
-    //TODO 400 bad request exception handling
     //Only Admin
     @PostMapping
     public ResponseEntity<AssetResponse> add(@Valid @RequestBody AssetRequest assetRequest) {

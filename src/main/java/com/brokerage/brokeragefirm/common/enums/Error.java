@@ -6,6 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Error {
+    UNAUTHORIZED("Authentication is required"),
+    PERMISSION_DENIED("Access is denied"),
+    VALIDATION_ERROR("Validation error! %s"),
     CUSTOMER_NOT_FOUND_ID("Customer not found with id: %s"),
     CUSTOMER_NOT_FOUND_EMAIL("Customer not found with email: %s"),
     INCORRECT_EMAIL_PASSWORD("Incorrect email or password."),

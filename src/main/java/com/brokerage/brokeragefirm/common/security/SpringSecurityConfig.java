@@ -1,5 +1,7 @@
 package com.brokerage.brokeragefirm.common.security;
 
+import com.brokerage.brokeragefirm.common.aspect.CustomAccessDeniedHandler;
+import com.brokerage.brokeragefirm.common.aspect.CustomAuthenticationEntryPoint;
 import com.brokerage.brokeragefirm.common.constants.Constants;
 import com.brokerage.brokeragefirm.common.security.auth.JwtFilter;
 import lombok.RequiredArgsConstructor;
@@ -26,9 +28,9 @@ public class SpringSecurityConfig {
 
     private final JwtFilter jwtFilter;
 
-    //TODO add custom error response
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomAccessDeniedHandler accessDeniedHandler,
+                                                   CustomAuthenticationEntryPoint authenticationEntryPoint) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
@@ -38,6 +40,7 @@ public class SpringSecurityConfig {
                                 .requestMatchers("/assets").hasRole(Constants.ROLE_ADMIN)
                                 .anyRequest().authenticated()
                 )
+
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
