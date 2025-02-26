@@ -16,11 +16,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
   app:
     depends_on:
       mysqldb:
         condition: service_healthy
-
     build: .
     restart: on-failure
     ports:
@@ -31,9 +31,13 @@ services:
       SPRING_DATASOURCE_PASSWORD: root
     volumes:
       - .m2:/root/.m2
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     stdin_open: true
     tty: true
-
 
 volumes:
   db:
