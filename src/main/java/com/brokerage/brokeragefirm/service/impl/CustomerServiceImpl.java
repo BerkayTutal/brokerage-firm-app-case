@@ -14,14 +14,16 @@ import com.brokerage.brokeragefirm.service.RoleService;
 import com.brokerage.brokeragefirm.service.model.Asset;
 import com.brokerage.brokeragefirm.service.model.Customer;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -34,7 +36,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer register(Customer customer) {
-
+        log.info("Registering customer: {}", customer);
         CustomerEntity customerEntity = CustomerEntity.builder()
                 .email(customer.getEmail())
                 .password(passwordEncoder.encode(customer.getPassword()))
@@ -52,6 +54,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer get(String email) {
+        log.info("Fetching customer with email: {}", email);
         return customerRepository.findCustomerByEmail(email)
                 .map(CustomerMapper::toModel)
                 .orElseThrow(() -> new NotFoundException(Error.CUSTOMER_NOT_FOUND_EMAIL, email));
@@ -59,6 +62,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer get(Long id) {
+        log.info("Fetching customer with ID: {}", id);
         return customerRepository.findById(id)
                 .map(CustomerMapper::toModel)
                 .orElseThrow(() -> new NotFoundException(Error.CUSTOMER_NOT_FOUND_ID, id));
@@ -67,7 +71,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Transactional
     @Override
     public Customer updateEmailPassword(Customer customer) {
-
+        log.info("Updating customer: {}", customer);
         CustomerEntity customerEntity = customerRepository.findById(customer.getId()).orElseThrow(() -> new NotFoundException(Error.CUSTOMER_NOT_FOUND_ID, customer.getId()));
         customerEntity.setPassword(passwordEncoder.encode(customer.getPassword()));
         customerEntity.setEmail(customer.getEmail());
@@ -77,8 +81,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<Customer> getAll() {
-        return customerRepository.findAll().stream().map(CustomerMapper::toModel).collect(Collectors.toList());
+    public Page<Customer> getAll(Pageable pageable) {
+        return customerRepository.findAll(pageable).map(CustomerMapper::toModel);
     }
 
     @Override

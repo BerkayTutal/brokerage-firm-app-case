@@ -10,13 +10,12 @@ import com.brokerage.brokeragefirm.service.CustomerService;
 import com.brokerage.brokeragefirm.service.model.Customer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -42,7 +41,9 @@ public class CustomerController {
 
     //Only ADMIN role
     @GetMapping
-    public List<CustomerResponse> getAll() {
-        return customerService.getAll().stream().map(CustomerResponseMapper::toResponse).collect(Collectors.toList());
+    public ResponseEntity<Page<CustomerResponse>> getAll(Pageable pageable) {
+        Page<Customer> customers = customerService.getAll(pageable);
+        Page<CustomerResponse> customerResponses = customers.map(CustomerResponseMapper::toResponse);
+        return ResponseEntity.ok(customerResponses);
     }
 }

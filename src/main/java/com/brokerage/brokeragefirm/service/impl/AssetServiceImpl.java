@@ -11,10 +11,12 @@ import com.brokerage.brokeragefirm.service.AssetService;
 import com.brokerage.brokeragefirm.service.model.Asset;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AssetServiceImpl implements AssetService {
@@ -25,7 +27,7 @@ public class AssetServiceImpl implements AssetService {
     @Override
     @Transactional
     public Asset create(Asset asset) {
-
+        log.info("Creating asset: {}", asset);
         //Check customer exists
         if (!customerRepository.existsById(asset.getCustomerId())) {
             throw new NotFoundException(Error.CUSTOMER_NOT_FOUND_ID, asset.getCustomerId());
@@ -43,7 +45,7 @@ public class AssetServiceImpl implements AssetService {
     @Transactional
     @Override
     public Asset update(Asset asset) {
-
+        log.info("Updating asset: {}", asset);
         //check if asset exists by customer
         AssetEntity existingAsset = assetRepository.findByCustomerIdAndAssetName(asset.getCustomerId(), asset.getAssetName())
                 .orElseThrow(() -> new NotFoundException(Error.ASSET_NOT_FOUND_ASSET_CUSTOMER, asset.getAssetName(), asset.getCustomerId()));
@@ -59,11 +61,13 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public Page<Asset> getAll(Pageable pageable) {
+        log.info("Fetching all assets with pageable: {}", pageable);
         return assetRepository.findAll(pageable).map(AssetMapper::toModel);
     }
 
     @Override
     public Page<Asset> getAll(Long customerId, Pageable pageable) {
+        log.info("Fetching all assets for customer ID: {} with pageable: {}", customerId, pageable);
         if (customerRepository.existsById(customerId)) {
             return assetRepository.findAllByCustomerId(customerId, pageable).map(AssetMapper::toModel);
         } else {
@@ -74,11 +78,13 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public Asset get(Long assetId) {
+        log.info("Fetching asset with ID: {}", assetId);
         return assetRepository.findById(assetId).map(AssetMapper::toModel).orElseThrow(() -> new NotFoundException(Error.ASSET_NOT_FOUND_ID, assetId));
     }
 
     @Override
     public Asset get(Long customerId, String assetName) {
+        log.info("Fetching asset with name: {} for customer ID: {}", assetName, customerId);
         return assetRepository.findByCustomerIdAndAssetName(customerId, assetName)
                 .map(AssetMapper::toModel)
                 .orElseThrow(() -> new NotFoundException(Error.ASSET_NOT_FOUND_ASSET_CUSTOMER, assetName, customerId));
@@ -86,6 +92,7 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public boolean exists(Long customerId, String assetName) {
+        log.info("Checking if asset with name: {} exists for customer ID: {}", assetName, customerId);
         return assetRepository.existsByCustomerIdAndAssetName(customerId, assetName);
     }
 }

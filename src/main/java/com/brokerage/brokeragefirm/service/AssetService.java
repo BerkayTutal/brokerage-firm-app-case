@@ -1,9 +1,6 @@
 package com.brokerage.brokeragefirm.service;
 
 import com.brokerage.brokeragefirm.service.model.Asset;
-import jakarta.transaction.Transactional;
-
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

@@ -16,13 +16,14 @@ import com.brokerage.brokeragefirm.service.model.Asset;
 import com.brokerage.brokeragefirm.service.model.Order;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -33,6 +34,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public Order create(Order order) {
+        log.info("Creating a new order: {}", order);
 
         if (Constants.ASSET_TRY.equals(order.getAssetName())) {
             throw new OperationNotAllowedException(Error.ASSET_TRY_NOT_ALLOWED);
@@ -59,12 +61,15 @@ public class OrderServiceImpl implements OrderService {
         OrderEntity orderEntity = OrderMapper.toEntity(order);
         orderEntity.setStatus(Status.PENDING);
 
-        return OrderMapper.toModel(orderRepository.save(orderEntity));
+        Order savedOrder = OrderMapper.toModel(orderRepository.save(orderEntity));
+        log.debug("Order created successfully: {}", savedOrder);
+        return savedOrder;
     }
 
     @Transactional
     @Override
     public Order match(Long orderId) {
+        log.info("Matching order with ID: {}", orderId);
 
         OrderEntity orderEntity = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException(Error.ORDER_NOT_FOUND_ID, orderId));
@@ -106,22 +111,28 @@ public class OrderServiceImpl implements OrderService {
 
         orderEntity.setStatus(Status.MATCHED);
 
-        return OrderMapper.toModel(orderRepository.save(orderEntity));
+        Order matchedOrder = OrderMapper.toModel(orderRepository.save(orderEntity));
+        log.debug("Order matched successfully: {}", matchedOrder);
+        return matchedOrder;
+
     }
 
     @Override
     public Page<Order> getAll(Pageable pageable) {
+        log.info("Fetching all orders with pageable: {}", pageable);
         return orderRepository.findAll(pageable).map(OrderMapper::toModel);
     }
 
     @Override
     public Page<Order> getAll(Long customerId, Pageable pageable) {
+        log.info("Fetching all orders for customer ID: {} with pageable: {}", customerId, pageable);
         return orderRepository.findAllByCustomerId(customerId, pageable).map(OrderMapper::toModel);
     }
 
 
     @Override
     public Order get(Long orderId) {
+        log.info("Fetching order with ID: {}", orderId);
         return orderRepository.findById(orderId).map(OrderMapper::toModel)
                 .orElseThrow(() -> new NotFoundException(Error.ORDER_NOT_FOUND_ID, orderId));
     }
@@ -129,6 +140,8 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public Order cancel(Long orderId) {
+        log.info("Canceling order with ID: {}", orderId);
+
         //Check if the order exists
         OrderEntity orderEntity = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException(Error.ORDER_NOT_FOUND_ID, orderId));
@@ -148,8 +161,9 @@ public class OrderServiceImpl implements OrderService {
                 sellingAsset.setUsableSize(sellingAsset.getUsableSize().add(orderEntity.getSize()));
                 assetService.update(sellingAsset);
             }
-
-            return OrderMapper.toModel(orderRepository.save(orderEntity));
+            Order canceledOrder = OrderMapper.toModel(orderRepository.save(orderEntity));
+            log.debug("Order canceled successfully: {}", canceledOrder);
+            return canceledOrder;
         } else {
             throw new OperationNotAllowedException(Error.NOT_ALLOWED_STATE_CHANGE, Status.PENDING, orderEntity.getStatus());
         }

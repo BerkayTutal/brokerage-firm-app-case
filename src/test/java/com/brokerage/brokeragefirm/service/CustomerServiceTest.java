@@ -16,13 +16,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static com.brokerage.brokeragefirm.common.constants.Constants.ROLE_CUSTOMER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -231,42 +237,48 @@ class CustomerServiceTest {
     }
 
     // getAll
+
     @Test
-    void testGetAll_WhenCustomersExist_ShouldReturnCustomerList() {
-        // given
-        CustomerEntity customerEntity1 = CustomerEntity.builder()
-                .id(1L)
-                .email("customer1@example.com")
-                .build();
+    void testGetAll_WhenCustomersExist_ShouldReturnCustomerPage() {
+        // Given
+        Pageable pageable = PageRequest.of(0, 5); // First page, 5 items per page
+        List<CustomerEntity> customerEntities = List.of(
+                CustomerEntity.builder().id(1L).email("customer1@example.com").password("password1").build(),
+                CustomerEntity.builder().id(2L).email("customer2@example.com").password("password2").build()
+        );
 
-        CustomerEntity customerEntity2 = CustomerEntity.builder()
-                .id(2L)
-                .email("customer2@example.com")
-                .build();
+        Page<CustomerEntity> pagedResult = new PageImpl<>(customerEntities, pageable, customerEntities.size());
 
-        when(customerRepository.findAll()).thenReturn(List.of(customerEntity1, customerEntity2));
+        when(customerRepository.findAll(pageable)).thenReturn(pagedResult);
 
-        // when
-        List<Customer> customers = customerService.getAll();
+        // When
+        Page<Customer> result = customerService.getAll(pageable);
 
-        // then
-        assertEquals(2, customers.size());
-        assertEquals("customer1@example.com", customers.get(0).getEmail());
-        assertEquals("customer2@example.com", customers.get(1).getEmail());
-        verify(customerRepository, times(1)).findAll();
+        // Then
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getTotalPages()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getEmail()).isEqualTo("customer1@example.com");
+        assertThat(result.getContent().get(1).getEmail()).isEqualTo("customer2@example.com");
+        verify(customerRepository, times(1)).findAll(pageable);
     }
 
     @Test
-    void testGetAll_WhenNoCustomersExist_ShouldReturnEmptyList() {
-        // given
-        when(customerRepository.findAll()).thenReturn(List.of());
+    void testGetAll_WhenNoCustomersExist_ShouldReturnEmptyPage() {
+        // Given
+        Pageable pageable = PageRequest.of(0, 5); // First page, 5 items per page
+        Page<CustomerEntity> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
 
-        // when
-        List<Customer> customers = customerService.getAll();
+        when(customerRepository.findAll(pageable)).thenReturn(emptyPage);
 
-        // then
-        assertEquals(0, customers.size());
-        verify(customerRepository, times(1)).findAll();
+        // When
+        Page<Customer> result = customerService.getAll(pageable);
+
+        // Then
+        assertThat(result.getContent()).isEmpty();
+        assertThat(result.getTotalElements()).isZero();
+        assertThat(result.getTotalPages()).isZero();
+        verify(customerRepository, times(1)).findAll(pageable);
     }
 
     // exists
