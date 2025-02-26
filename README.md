@@ -39,12 +39,22 @@ Follow these steps to run the application easily using Docker and Docker Compose
    ```bash
    docker-compose up --build
    ```
+   **Note**: This will take a few minutes to complete.
 
-3. **Access the Application**:
+
+3. **Running the Local Configuration**
+
+   If you want to run the application on testing configuration, run the following command:
+   ```bash
+   SPRING_PROFILES_ACTIVE=local docker-compose up --build
+   ```
+
+
+4. **Access the Application**:
    - The backend Spring application runs at [http://localhost:8080](http://localhost:8080).
    - The MySQL database runs at `localhost:3306`.
 
-4. **Database Configuration**:
+5. **Database Configuration**:
    The application uses the following default credentials to connect to the MySQL database:
    - **URL**: `jdbc:mysql://mysqldb:3306/brokerage?useSSL=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true`
    - **Username**: `root`
